@@ -4,6 +4,15 @@ title: Review of Casablanca
 tags: [c++, template, microsoft, casablanca]
 ---
 
+- [Introduction](#introduction)
+- [Enforcing type-constraint](#enforcing_typeconstraint)
+- [Choosing alternatives](#choosing_alternatives)
+- [Immutabilty Is Important](#immutabilty_is_important_iii)
+- [Less is more](#less_is_more)
+- [Dont encapsulate partially](#dont_encapsulate_partially)
+- [Lack of friendly logging api](#lack_of_friendly_logging_api)
+- [And finally](#and_finally)
+
 [casa]:http://msdn.microsoft.com/en-us/devlabs/casablanca.aspx
 [where]:http://msdn.microsoft.com/en-us/library/d5x73970(v=vs.110).aspx
 [enable]:http://en.cppreference.com/w/cpp/types/enable_if
@@ -22,9 +31,9 @@ Obviously, it isn't possible to comment on the overall design of the SDK, as I d
 
 ###Enforcing type-constraint
 
-**Why do we need type-constraint? ** Every bug has its life. There are bugs with shorter lifespan because the programmer can find them easily; such bugs get fixed in the developement phase itself. They're others with a bit longer lifespan which get fixed after they're discovered in the testing phase and reported as bugs to be fixed by developers. However, they are others with longest lifespan, discovered in production phase, or worst after the product is released!
+**Why do we need type-constraint? ** Every bug has its life. There are bugs with shorter lifespan because the programmer can find them easily; such bugs get fixed in the developement phase itself. They're others with a bit longer lifespan which get fixed after there are discovered in the testing phase and reported as bugs to be fixed by developers. However, there are others with longest lifespan, discovered in production phase, or worst after the product is released!
 
-Therefore, shorter the lifespan of bugs, better is the situation, as it not only avoids lots of headache, it also increases the efficiency of developers and testers. So type-constraint lets compiler find error in your code at *compile-time* itself, making the lifespan of bugs *shortest*, because they get fixed immediately. Enforcing type-constraint in template code is one way to [program defensively][defensive-programming]. Moreover, it is a *best* documentation in itself, as the template code *itself* speaks what type(s) it will acccept as type argument(s).
+Therefore, the shorter the lifespan of bugs, the better is the situation, as it not only avoids lots of headache, it also increases the efficiency of developers and testers. So type-constraint lets compiler find error in your code at *compile-time* itself, making the lifespan of bugs *shortest*, because they get fixed immediately. Enforcing type-constraint in template code is one way to [program defensively][defensive-programming]. Moreover, it is a *best* documentation in itself, as the template code *itself* speaks what type(s) it will acccept as type argument(s).
 
 So here is a class which has a member function template which is to be instantiated with ***only*** derived class type(s), **but no such type-constraint is enforced on its implementation**:
 {% highlight cpp %}
@@ -124,7 +133,7 @@ typename if_derived<T>::type const & as()
 
 That is, instead of dereferencing the result of `dynamic_cast`, why not dereference `this` itself? In other words, instead of casting `this` to `T*`, why not cast `*this` to `T const&`. After all, the function returns `T const&` - that is what we need eventually. In this alternative syntax, we dereference the source, not the result, thereby avoiding the danger of dereferencing a nullptr, as `this` can never be nullptr.
 
-Now lets face the same question : what if the runtime type of `this` is not `T*`? Well in that case the expression `dynamic_cast<T const&>(*this)` would throw `std::bad_cast` exception ([demo][bad-cast]) which is a *much better* situation, as exception are C++ feature and can be caught with `try-catch` and dealt with accordingly. Moreover, your program remains well-defined in all cases, as it doesn't enter into the region of undefined-behaviour, anymore!
+Now lets face the same question : what if the runtime type of `this` is not `T*`? Well in that case the expression `dynamic_cast<T const&>(*this)` would throw `std::bad_cast` exception ([demo][bad-cast]) which is a *much better* situation, as exceptions are C++ feature and can be caught with `try-catch` and dealt with accordingly. Moreover, your program remains well-defined in all cases, as it doesn't enter into the region of undefined-behaviour, anymore!
 
 ### Immutabilty Is Important (III)
 
@@ -150,7 +159,7 @@ bool fun(B b)
 { 
   /* some code might be here */ 
 
-  return f(b.avalue); //call the other overload for the rest of the work.
+  return fun(b.avalue); //call the other overload for the rest of the work.
 }
 {% endhighlight %}
 

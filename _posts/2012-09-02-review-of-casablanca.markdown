@@ -7,13 +7,13 @@ tags: [c++, template, microsoft, casablanca]
 - [Introduction](#introduction)
 - [Enforcing type-constraint](#enforcing_typeconstraint)
 - [Choosing alternatives](#choosing_alternatives)
-- [Immutabilty Is Important](#immutabilty_is_important_iii)
+- [Immutability Is Important](#immutability_is_important)
 - [Less is more](#less_is_more)
 - [Dont encapsulate partially](#dont_encapsulate_partially)
 - [Lack of friendly logging api](#lack_of_friendly_logging_api)
-- [And finally](#and_finally)
+- [And the rest](#and_the_rest)
 
-[casa]:http://msdn.microsoft.com/en-us/devlabs/casablanca.aspx
+[casablanca]:http://msdn.microsoft.com/en-us/devlabs/casablanca.aspx
 [where]:http://msdn.microsoft.com/en-us/library/d5x73970(v=vs.110).aspx
 [enable]:http://en.cppreference.com/w/cpp/types/enable_if
 [base]:http://en.cppreference.com/w/cpp/types/is_base_of
@@ -25,15 +25,15 @@ tags: [c++, template, microsoft, casablanca]
 
 ###Introduction
 
-[Casablanca][casa] is a codename for the cloud-based client-server communication SDK being developed by Microsoft. It is currently in beta phase which I downloaded just to play around with. Before anything else, I first started looking at the class templates and other header files. That is something I often do - reading code written by others. Anyway, soon I felt like commenting on the implementation of few classes and functions. So I thought why not write a blog so that others (maybe the ones who wrote the code) could also review my review? Sounds like a good idea.
+[Casablanca][casablanca] is a codename for the cloud-based client-server communication SDK developed by Microsoft. It is currently in beta phase which I downloaded just to play around with. Before anything else, I first started looking at the class templates and other header files. That is something I often do - reading code written by others. Anyway, soon I felt like commenting on the implementation of few classes and functions, especially the template code. So I thought why not write a blog so that others (maybe the ones who wrote the code) could also review my review? Sounds like a good idea.
 
 Obviously, it isn't possible to comment on the overall design of the SDK, as I don't have access to the full code-base and the design documentation. However, it is certainly possible to comment on some pieces, the small yet important pieces of the code which comes with the SDK. In this blog, I've attempted to list few ideas which can help improving the code in many ways.
 
 ###Enforcing type-constraint
 
-**Why do we need type-constraint? ** Every bug has its life. There are bugs with shorter lifespan because the programmer can find them easily; such bugs get fixed in the developement phase itself. They're others with a bit longer lifespan which get fixed after there are discovered in the testing phase and reported as bugs to be fixed by developers. However, there are others with longest lifespan, discovered in production phase, or worst after the product is released!
+**Why do we need type-constraint? ** Well, because every bug has its life. There are bugs with shorter lifespan because the programmer can find them easily; such bugs get fixed in the developement phase itself. There are others with a bit longer lifespan which get fixed after they are discovered in the testing phase and reported as bugs to be fixed by the developers. However, there are others with *longest* lifespan, discovered in production phase, or *worst* after the product is released!
 
-Therefore, the shorter the lifespan of bugs, the better is the situation, as it not only avoids lots of headache, it also increases the efficiency of developers and testers. So type-constraint lets compiler find error in your code at *compile-time* itself, making the lifespan of bugs *shortest*, because they get fixed immediately. Enforcing type-constraint in template code is one way to [program defensively][defensive-programming]. Moreover, it is a *best* documentation in itself, as the template code *itself* speaks what type(s) it will acccept as type argument(s).
+Therefore, the shorter the lifespan of bugs, the better is the situation, as it not only avoids lots of headache, it also increases the efficiency of developers and testers, and the quality of the product. So type-constraint lets compiler find error in your code at *compile-time* itself, making the lifespan of bugs *shortest*, because they get fixed immediately. Enforcing type-constraint in template code is one way to [program defensively][defensive-programming]. Moreover, it is a *best* documentation in itself, as the template code *itself* speaks what type(s) it will acccept as type argument(s)!
 
 So here is a class which has a member function template which is to be instantiated with ***only*** derived class type(s), **but no such type-constraint is enforced on its implementation**:
 {% highlight cpp %}
@@ -56,7 +56,7 @@ struct _actor_context
 };
 {% endhighlight %}
 
-Despite the comment that `'T'` must be a derived class of `_actor_context,`the function template `as()` can be invoked with *any* type, and the compiler will happily accept the code. That is to say, the comment neither prevents a programmer from writing an incorrect code, nor does it enable compiler in enforcing the type-constraint *required* by the function template:
+Despite the comment that `'T'` must be a derived class of `_actor_context,`the function template `as()` can be invoked with *any* type, and the compiler will happily accept the code. That is to say, the comment neither prevents a programmer from writing an incorrect code, nor does it enable the compiler in enforcing the type-constraint *required* by the function template:
 
 {% highlight cpp %}
 struct X : _actor_context{}; //i.e X is a derived class of _actor_context
@@ -67,12 +67,12 @@ X const & x = ctx.as<X>(); //ok - and that is fine.
 Y const & y = ctx.as<Y>(); //ok - but the compiler must NOT allow this code!
 {% endhighlight %}
 
-The fact that `Y` is not a derived class of `_actor_context` must be enough hint for the compiler to reject the second call to `as()` but the current implementation of the function template `as()` doesn't help the compiler in detecting this *obvious* error ([demo][faulty-as]). So we must find a way to enforce the type-constraint in the code itself, as opposed to in the comment!
+The fact that `Y` is not a derived class of `_actor_context` must be a *strong* hint for the compiler to reject the second call to `as()` but the current implementation of the function template `as()` doesn't help the compiler in detecting this *obvious* error ([demo][faulty-as]). So we must find a way to enforce the type-constraint in the code itself, as opposed to in the comment!
 
-C# provides [where contexual keyword][where] which is used to enforce type-constraint on generic type parameters. C++ doesn't have such keyword. However, a little template-metaprogramming can do the job; more specifically C++11's two meta-functions viz [std::enable_if][enable] and [std::is_base_of][base] are all that we need. Here is an improved version of `as()`:
+C# provides [where contexual keyword][where] which is used to enforce type-constraint on generic type parameters. C++ doesn't have such keyword. However, a little template-metaprogramming can do the job; specifically C++11's two meta-functions viz [std::enable_if][enable] and [std::is_base_of][base] are all that we need. Here is an improved version of `as()`:
 
 {% highlight cpp %}
-template<typename T>
+template<typename T> //I know it is ugly; we'll come to that soon!
 typename std::enable_if<std::is_base_of<_actor_context,T>::value,T>::type const & as() 
 { 
     return *dynamic_cast<T *>(this); 
@@ -135,13 +135,107 @@ That is, instead of dereferencing the result of `dynamic_cast`, why not derefere
 
 Now lets face the same question : what if the runtime type of `this` is not `T*`? Well in that case the expression `dynamic_cast<T const&>(*this)` would throw `std::bad_cast` exception ([demo][bad-cast]) which is a *much better* situation, as exceptions are C++ feature and can be caught with `try-catch` and dealt with accordingly. Moreover, your program remains well-defined in all cases, as it doesn't enter into the region of undefined-behaviour, anymore!
 
-### Immutabilty Is Important (III)
+### Immutability Is Important
 
-Lets revisit `as()` function template:
+[herb-const-correctness]:http://www.gotw.ca/gotw/006.htm
 
-//code
+Immutability is good and important. That is the central notion of the functional programming languages, with which I totally agree. In C++, there is a very *special* aspect of immutability, which is implemented in terms of const member function and const-correctness. So, in C++, const-correctness is as important as immutability. Now lets analyse this *original* code:
 
-It does two things: it casts down `this` to `T*` and modifies the const-ness while returning it, as it returns `const` reference to the object, rather than non-const reference to the object. Returing const-reference reduces its usage!
+{% highlight cpp%}
+///original code
+template<typename T> 
+const T& as() 
+{ 
+  return *dynamic_cast<T *>(this); 
+}
+{% endhighlight %}
+
+It does two things: it casts down `this` to `T*` and *modifies the const-ness* of the object pointed to by `this` while returning it. The modification of *const-ness* results in many issues, which are best shown in the following code and the comments:
+
+{% highlight cpp%}
+struct X : _actor_context
+{
+   void  f() {}        //non-const member function
+   void cf() const {}  //const member function
+};
+
+void do_something(_actor_context & nonConstCtx) //non-const context reference!
+{
+   auto & x1 = nonConstCtx.as<X>(); //ok
+   x1.cf(); //ok
+   x1.f();  //error : oops, the type of `x1` is inferred to be `X const &` 
+            //and a non-const member cannot be invoked on const object.
+}
+{% endhighlight %}
+
+But wait, `nonConstCtx` is a non-const context, which means we should be *able* to call non-const member function referred to by the reference `nonConstCtx`, even after the dynamic_cast:
+
+{% highlight cpp%}
+auto & x1 = dynamic_cast<X&>(nonConstCtx); //this cast is perfectly fine!
+x1.f();  //ok, as we should be able to do that.
+x2.cf(); //ok, as const member function can be invoked on non-const object!
+{% endhighlight %}
+
+Therefore, that means `as()` conversion function does more than what it is asked to do : it modifies the const-ness, in addition to the down-cast!
+
+Well in my opinion, we should do these:
+
+- `_actor_context &` should be down-casted to `T&`.
+- `_actor_context const&` should be down-casted to `T const&`.
+
+Based on this idea, I would suggest this:
+
+{% highlight cpp%}
+template<typename T> 
+T& as() //non-const member function which returns non-const reference to T
+{ 
+  return *dynamic_cast<T *>(this); 
+}
+template<typename T> 
+T const & as() const //const member function which returns const reference to T
+{ 
+  return *dynamic_cast<T const *>(this); 
+}
+{% endhighlight %}
+
+Merging all ideas discussed so far, we have these:
+
+{% highlight cpp%}
+template<typename T> 
+typename if_derived<T>::type & as() //non-const member function.
+{ 
+  return dynamic_cast<T&>(*this);  //changed here also!
+}
+template<typename T> 
+typename if_derived<T>::type const & as() const //const member function.
+{ 
+  return dynamic_cast<T const &>(*this);  //changed here also!
+} 
+{% endhighlight %}
+
+Once we have these overloads, we will have consistent code:
+
+{% highlight cpp%}
+void do_something(_actor_context & nonConstCtx,    //non-const reference
+                  _actor_context const & constCtx) //const reference
+{
+   //Working with non-const reference
+   auto & x1 = nonConstCtx.as<X>(); //it invokes non-const member function
+                                    //which returns non-const reference to X!
+   x1.cf(); //ok
+   x1.f();  //ok
+
+   //Working with const reference 
+   auto & x2 = constCtx.as<X>();   //it invokes const member function
+                                   //which returns const reference to X!
+   x1.cf(); //ok
+   x1.f();  //error, which is consistent behavior because `constCtx` 
+            //is a const reference and the compiler must stop us 
+            //from invoking non-const member function on const object!
+}
+{% endhighlight %}
+
+And finally, I would redirect this discussion to Herb Sutter's article on [const-correctness][herb-const-correctness] which discusses this topic in great detail.
 
 ###Less is more
 
@@ -206,10 +300,13 @@ That, in my opinion, increases readability and it is evidently concise. :-)
 [rule-of-three]:http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three
 [raii]:http://en.wikipedia.org/wiki/Resource_acquisition_is_initialization
 [deleted-functions]:http://blogs.msdn.com/b/vcblog/archive/2011/09/12/10209291.aspx
+[noncopyable]:http://www.boost.org/doc/libs/1_51_0/boost/noncopyable.hpp
 
 I don't understand why this class is implemented in this way:
 
 {% highlight cpp %}
+///code-snippet taken from registry.h - Sarfaraz Nawaz
+
 template<typename Element>
 struct registry_node
 {
@@ -243,7 +340,7 @@ struct registry_node : noncopyable //now derives from noncopyable :-)
 };
 {% endhighlight %}
 
-The base class is *noncopyable* which is implemented as:
+Now if any piece of code attempts to make copy of registry_node instance, even accidently, the compiler will reject that code, letting the programmer know the cause of the rejection. Anyway the base class *noncopyable* has trivial implementation:
 
 {% highlight cpp %}
 class noncopyable 
@@ -269,11 +366,70 @@ class noncopyable
 };
 {% endhighlight %}
 
-Good thing is that this class can be used as base class for many other classes for which copy-semantics don't make sense. It is good to have this class in your library.
+Good thing is that this class can be used as base class for many other classes for which copy-semantics don't make sense. Therefore, I think it is good to have this class in any C++ library ([like Boost has this!][noncopyable]).
 
 ###Lack of friendly logging api
 
+[templog]:http://www.templog.org/
+[macro]:http://msdn.microsoft.com/en-us/library/ms177415(v=vs.110).aspx
+[macro-bad]:http://stackoverflow.com/questions/4767667/c-enum-vs-const-vs-define
 
-###And finally...
+I was a bit uncomfortable seeing the logging code in the project. One has to write *minimum* three lines of code to log just one message:
+
+{% highlight cpp%}
+///code-snippet taken from agnt_tcp_listen.h - Sarfaraz Nawaz
+
+std::stringstream builder;
+builder << "  Hosting instance of '" << type_name.substr(6) << "' at " << m_uri;
+log::post(LOG_INFO, builder.str());
+{% endhighlight %}
+
+Such triplets has been repeated throughout the project. So I would say, it is very unfriendly (or rather scary) way to log messages, and the resulting code looks unnecessarily verbose and huge. On the top of it, if one wants to disable logs with certain *severity*, the third line *might* be optimized away depending on how `log::post` is implemented, but the first two lines will still remain in the code to be executed, wasting CPU cycles. Ideally, a logging API shouldn't consume CPU cycles for all logs with disabled severity. [templog][templog] is one such attempt in that direction.
+
+At first it doesn't seem to be a problem with the logging API itself; after all `log::post()` is just one line which cannot be reduced to zero. It appears to be a problem with the formatting of the message. So one may think of the following improvement (or something along this line):
+
+{% highlight cpp%}
+log::post(LOG_INFO, format(" Hosting instance of {0} at {1}", type_name.substr(6), m_uri));
+{% endhighlight %}
+
+But then why even `format`? Why not this instead:
+
+{% highlight cpp%}
+log::post(LOG_INFO, " Hosting instance of {0} at {1}", type_name.substr(6), m_uri);
+{% endhighlight %}
+
+I would prefer this. :-)
+
+Now if one wishes to log line, filename, and function name, then [macro][macro] would make that easy:
+
+{% highlight cpp%}
+#define T_INFO(fmtstring, ...)  log::post(LOG_INFO, "{0}\n\n{1}, {2}, {3}", \
+                                format(fmtstring, __VA_ARGS__),             \
+                                __FILE__, __FUNCTION__, __LINE__)
+{% endhighlight %}
+
+Once we've such macro, logging becomes so easy:
+
+{% highlight cpp%}
+T_INFO(" Hosting instance of {0} at {1}", type_name.substr(6), m_uri);
+{% endhighlight %}
+
+Note that the name of the macro itself says what *severity* it is. With macro, we have also such opportunities:
+
+{% highlight cpp%}
+#ifdef NDEBUG
+   #define T_VERBOSE(fmtstring, ...)  log::post(LOG_VERBOSE, etc )
+#else
+   #define T_VERBOSE(fmtstring, ...)  do {} while(false) //no-op instruction!
+#endif
+{% endhighlight %}
+
+Well, I do agree that [macros are bad][macro-bad], as they don't respect scope, but they are not always bad, not atleast here. :-)
+
+###And the rest
+
+[rest]:http://en.wikipedia.org/wiki/Representational_state_transfer
+
+Well it is not about [REST][rest] which is supported by [Casablanca][casablanca], rather it is about the rest. 
 
 Alright, this blog is already long, and I don't wish to make it any longer by adding more stuffs to it, though there are some topics still popping up in my mind, such as *return value vs. exception*, *cocktail of different and inconsistent naming conventions* (see `procdir.h` for example), and many others.

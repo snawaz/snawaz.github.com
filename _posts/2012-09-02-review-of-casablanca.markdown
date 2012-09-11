@@ -232,9 +232,9 @@ void do_something(_actor_context & nonConstCtx,    //non-const reference
                                    //which returns const reference to X!
                                    //x2 is inferred to be X const &
    x2.cf(); //ok
-   x2.f();  //error, which is consistent behavior because constCtx
-            //is a const reference and the compiler must stop us 
-            //from invoking non-const member function on const object i.e the casted-down object from constCtx.
+   x2.f();  //error, which is consistent behavior because constCtx is a const reference 
+            //and the compiler must stop us from invoking non-const member function 
+            //on const object i.e the casted-down object from constCtx.
 }
 {% endhighlight %}
 

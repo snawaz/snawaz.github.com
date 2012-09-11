@@ -171,8 +171,8 @@ void do_something(_actor_context & nonConstCtx) //non-const context reference!
 But wait, `nonConstCtx` is a non-const context, which means we should be *able* to call non-const member function referred to by the reference `nonConstCtx`, even after the dynamic_cast:
 
 {% highlight cpp%}
-auto & x1 = dynamic_cast<X&>(nonConstCtx); //this cast is perfectly fine!
-x1.f();  //ok, as we should be able to do that.
+auto & x2 = dynamic_cast<X&>(nonConstCtx); //this cast is perfectly fine!
+x2.f();  //ok, as we should be able to do that. the type of x2 is inferred to be `X &` now.
 x2.cf(); //ok, as const member function can be invoked on non-const object!
 {% endhighlight %}
 

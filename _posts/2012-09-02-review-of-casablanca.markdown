@@ -223,16 +223,18 @@ void do_something(_actor_context & nonConstCtx,    //non-const reference
    //Working with non-const reference
    auto & x1 = nonConstCtx.as<X>(); //it invokes non-const member function
                                     //which returns non-const reference to X!
-   x1.cf(); //ok
+                                    //x1 is inferred to be X &
+   x1.cf(); //ok - const member function can be invoked on const object :-)
    x1.f();  //ok
 
    //Working with const reference 
    auto & x2 = constCtx.as<X>();   //it invokes const member function
                                    //which returns const reference to X!
-   x1.cf(); //ok
-   x1.f();  //error, which is consistent behavior because `constCtx` 
+                                   //x2 is inferred to be X const &
+   x2.cf(); //ok
+   x2.f();  //error, which is consistent behavior because constCtx
             //is a const reference and the compiler must stop us 
-            //from invoking non-const member function on const object!
+            //from invoking non-const member function on const object i.e the casted-down object from constCtx.
 }
 {% endhighlight %}
 

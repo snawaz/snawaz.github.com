@@ -178,12 +178,13 @@ x2.cf(); //ok, as const member function can be invoked on non-const object!
 
 Therefore, that means `as()` conversion function does more than what it is asked to do : it modifies the const-ness, in addition to the down-cast!
 
-Well in my opinion, we should do these:
+Well in my opinion, we should not modify the const-ness of the object, therefore `as()` should be implemented in such a way to ensure the following behaviors:
 
-- `_actor_context &` should be down-casted to `T&`.
-- `_actor_context const&` should be down-casted to `T const&`.
+- if `ctx` is a non-const reference (i.e `_actor_context &`), then it should be down-casted to non-const reference to T (i.e `T &`).
 
-Based on this idea, I would suggest this:
+- if `ctx` is a const reference (i.e `_actor_context const &`), then it should be down-casted to const reference to T (i.e `T const &`).
+
+To ensure these behaviors, we need to define two overloaded `as()` member functions as follows:
 
 {% highlight cpp%}
 template<typename T> 

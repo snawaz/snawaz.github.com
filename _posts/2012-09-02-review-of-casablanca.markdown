@@ -180,9 +180,9 @@ Therefore, that means `as()` conversion function does more than what it is asked
 
 Well in my opinion, we should not modify the const-ness of the object, therefore `as()` should be implemented in such a way to ensure the following behaviors:
 
-- if ctx is a non-const reference (i.e it is _actor_context &), then it should be down-casted to non-const reference to T (i.e it should return *T&*).
+- if ctx is a non-const reference (i.e it is *\_actor\_context &*), then it should be down-casted to non-const reference to T (i.e it should return *T&*).
 
-- if ctx is a const reference (i.e it is _actor_context const &), then it should be down-casted to const reference to T (i.e it should return *T const &*).
+- if ctx is a const reference (i.e it is *\_actor\_context const &*), then it should be down-casted to const reference to T (i.e it should return *T const &*).
 
 To ensure these behaviors, we need to define two overloaded `as()` member functions as follows:
 

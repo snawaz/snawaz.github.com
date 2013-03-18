@@ -172,19 +172,20 @@ void do_something(_actor_context & nonConstCtx) //non-const context reference!
 But wait, `nonConstCtx` is a non-const context, which means we should be *able* to call non-const member function referred to by the reference `nonConstCtx`, even after the dynamic_cast:
 
 {% highlight cpp%}
-auto & x1 = dynamic_cast<X&>(nonConstCtx); //this cast is perfectly fine!
-x1.f();  //ok, as we should be able to do that.
+auto & x2 = dynamic_cast<X&>(nonConstCtx); //this cast is perfectly fine!
+x2.f();  //ok, as we should be able to do that. the type of x2 is inferred to be `X &` now.
 x2.cf(); //ok, as const member function can be invoked on non-const object!
 {% endhighlight %}
 
 Therefore, that means `as()` conversion function does more than what it is asked to do : it modifies the const-ness, in addition to the down-cast!
 
-Well in my opinion, we should do these:
+Well in my opinion, we should not modify the const-ness of the object, therefore `as()` should be implemented in such a way to ensure the following behaviors:
 
-- `_actor_context &` should be down-casted to `T&`.
-- `_actor_context const&` should be down-casted to `T const&`.
+- if ctx is a non-const reference (i.e it is *\_actor\_context &*), then it should be down-casted to non-const reference to T (i.e it should return *T&*).
 
-Based on this idea, I would suggest this:
+- if ctx is a const reference (i.e it is *\_actor\_context const &*), then it should be down-casted to const reference to T (i.e it should return *T const &*).
+
+To ensure these behaviors, we need to define two overloaded `as()` member functions as follows:
 
 {% highlight cpp%}
 template<typename T> 
@@ -223,16 +224,18 @@ void do_something(_actor_context & nonConstCtx,    //non-const reference
    //Working with non-const reference
    auto & x1 = nonConstCtx.as<X>(); //it invokes non-const member function
                                     //which returns non-const reference to X!
-   x1.cf(); //ok
+                                    //x1 is inferred to be X &
+   x1.cf(); //ok - const member function can be invoked on const object :-)
    x1.f();  //ok
 
    //Working with const reference 
    auto & x2 = constCtx.as<X>();   //it invokes const member function
                                    //which returns const reference to X!
-   x1.cf(); //ok
-   x1.f();  //error, which is consistent behavior because `constCtx` 
-            //is a const reference and the compiler must stop us 
-            //from invoking non-const member function on const object!
+                                   //x2 is inferred to be X const &
+   x2.cf(); //ok
+   x2.f();  //error, which is consistent behavior because constCtx is a const reference 
+            //and the compiler must stop us from invoking non-const member function 
+            //on const object i.e the casted-down object from constCtx.
 }
 {% endhighlight %}
 

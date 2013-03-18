@@ -1,6 +1,7 @@
 ---
-layout: post
+layout: blog
 title: Review of Casablanca
+type: blog
 tags: [c++, template, microsoft, casablanca]
 ---
 

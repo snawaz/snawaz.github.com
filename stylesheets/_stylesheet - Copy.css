@@ -168,13 +168,13 @@ img {
 
 pre, code {
   width: 100%;
-  color: #000;
-  background-color: #fff;
+  color: #fff;
+  background-color: #333;
 
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
-  font-size: 13px;
+  font-size: 14px;
 
-  border-radius: 5px;
+  border-radius: 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
 

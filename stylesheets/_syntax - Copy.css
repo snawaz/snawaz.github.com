@@ -1,17 +1,14 @@
 .highlight .hll { background-color: #ffffcc }
 .highlight  { background: #f0f3f3; }
-.highlighttable .linenos { background-color:#aaa; color:#444; } /*added by Sarfaraz*/
-.highlighttable .linenos .linenodiv { background-color:#aaa; color:#444; } /*added by Sarfaraz*/
-.highlighttable .linenos .linenodiv .cpp { background-color:#aaa; color:#444; } /*added by Sarfaraz*/
-.highlight .n { color:#000; } /*added by Sarfaraz*/
-.highlight .p { color:#000; } /*added by Sarfaraz*/
+.highlight .n { color:#ffffff; } /*added by Sarfaraz*/
+.highlight .p { color:#ffffff; } /*added by Sarfaraz*/
 .highlight .c { color: #005500; } /* Comment */
 .highlight .err { color: #AA0000; background-color: #FFAAAA } /* Error */
-.highlight .k { color: #0000ff; font-weight: normal; } /* Keyword */
-.highlight .o { color: #000; } /* Operator */
-.highlight .cm { color: #008800; } /* Comment.Multiline */
-.highlight .cp { color: #007788; font-weight:bold; } /* Comment.Preproc */
-.highlight .c1 { color: #008800;} /* Comment.Single */
+.highlight .k { color: #00ff00; font-weight: normal; } /* Keyword */
+.highlight .o { color: #ffffff; } /* Operator */
+.highlight .cm { color: #00aaaa; } /* Comment.Multiline */
+.highlight .cp { color: #88aaff; } /* Comment.Preproc */
+.highlight .c1 { color: #00aaaa;} /* Comment.Single */
 .highlight .cs { color: #0099FF; font-weight: bold; font-style: italic } /* Comment.Special */
 .highlight .gd { background-color: #FFCCCC; border: 1px solid #CC0000 } /* Generic.Deleted */
 .highlight .ge { font-style: italic } /* Generic.Emph */
@@ -28,7 +25,7 @@
 .highlight .kn { color: #006699; font-weight: bold } /* Keyword.Namespace */
 .highlight .kp { color: #006699 } /* Keyword.Pseudo */
 .highlight .kr { color: #006699; font-weight: bold } /* Keyword.Reserved */
-.highlight .kt { color: #0000ff; font-weight: normal } /* Keyword.Type */
+.highlight .kt { color: #00ff00; font-weight: normal } /* Keyword.Type */
 /*.highlight .kt { color: #007788; font-weight: bold }*/ /* Keyword.Type */
 .highlight .m { color: #FF0000; } /* Literal.Number */
 .highlight .s { color: #CC3300 } /* Literal.String */

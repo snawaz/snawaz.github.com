@@ -1,0 +1,25 @@
+<div class="page-header">
+  <h1>{{ page.title }}</h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    {{ content }}
+    <hr>
+
+    {% include JB/setup %}
+    {% assign doc_page = nil %} 
+    {% for post in site.posts %}
+       
+    {% endfor %}
+
+    {% if page.showdoc %}
+      <h3 id="documentation">Documentation</h3>
+      <ul> 
+         <li>
+ 	   <a href="{{ page.url | replace:'.html','/doc.html' | }}">Documentation of {{ page.name }}</a>
+         </li>
+      </ul>
+    {% endif %}
+  </div>
+</div>

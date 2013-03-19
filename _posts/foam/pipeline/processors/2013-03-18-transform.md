@@ -1,8 +1,8 @@
 ---
-layout: foam
-title: filter
+layout: pipe
+title: transform
 type: processorpipe
-permalink: /foam/pipeline/filter.html
+permalink: /foam/pipeline/transform.html
 ---
 
 

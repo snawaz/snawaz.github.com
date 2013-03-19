@@ -30,15 +30,15 @@ The source code can be found at:
 {% include JB/setup %}
 {% assign allposts = site.posts %}
 {% for post in allposts  %}
-    {% if post.type == "foamlibrary" %}
-- [{{ post.title }}]({{ BASE_PATH }}{{ post.url }})   
+    {% if post.layout == "library" %}
+- [{{ post.name }}]({{ BASE_PATH }}{{ post.url }})   
   > {{ post.description }}  
     {% endif %}
 {% endfor %}
 
 ###A bit about Foam
 
-The libraries and utilities is written out of fun while exploring various features of C++11. New ideas keep coming to my mind and I keep updating and refactoring the source code, making the programming experience better and better. It is a work in progress, with the following objectives and goals:
+The libraries and utilities are written out of fun while exploring various features of C++11. New ideas keep coming to my mind and I keep updating and refactoring the source code, making the programming experience better and better. It is a work in progress, with the following objectives and goals:
 
  - Cool and useful functionality.
  - Easy to use. Aesthetic coding.

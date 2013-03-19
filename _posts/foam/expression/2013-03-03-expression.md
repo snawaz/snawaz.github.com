@@ -1,18 +1,16 @@
 ---
-layout: foam
-title: Expression
-type: foamlibrary
+layout: library
+title: Overview of Expression
+name: Expression
+showdoc: false
 permalink: /foam/expression.html
 description: An expression template library that works great with Foam.Pipeline as well as with the C++ Standard library.
 ---
 
 Expressions are essentially functors, with an ability to compose itself with other expressions. You start with a simple expression, and then you go on composing more complex expressions using simpler ones.  It can be best understood by examples. So here you go.
 
-{% highlight cpp linenos=table %}
-
-#include <foam/composition/expression.h>  //must include this header
-
-//consider this function which takes a functor as argument
+{% highlight cpp %}
+//a function which takes a functor as argument
 //and then invoke it passing 0 to 9, and print the result.
 template<typename Functor>
 void f(Functor && fun)
@@ -21,12 +19,12 @@ void f(Functor && fun)
      std::cout << fun(i) << std::endl; //invoke fun for each i in [0, 10)
 }
 
-using foam::composition::expression; 
 expression<int> x;  //x is a simple expression (identity expression)
 
 f(x); //print 0 to 9
 
-auto y = x * x - 4 * x + 4; //compose an expression y using x and literals as coefficients
+auto y = x * x - 4 * x + 4; //compose an expression y using x and literals
+
 f(y); //print value of (i * i - 4 * i + 4) for each i in [0, 10)
 
 f( (x + 10)* y ); //x and y are expressions. compose further using them 
@@ -43,7 +41,7 @@ Consider this code which uses lambda,
 {% highlight cpp %}
 std::vector<int> v {0,1,2,3,4,5};
 
-auto it = std::find_if(begin(v), end(v), [](int x) { return x == 2; } );
+auto it = std::find_if(begin(v), end(v), [](int i) { return i == 2; } );
 
 {% endhighlight %}
 
@@ -70,19 +68,15 @@ That is better expressed without expression! But consider this code which uses e
 {% highlight cpp %}
 
 auto it = std::find_if(begin(v), end(v), (x*x+4) == (4*x) ); //find x such that LHS == RHS
-if ( it != end(v) )
-  std::cout << *it << std::endl; //prints 2 
-                                 //because at x = 2, (x*x+4) is equal to (4*x)
 {% endhighlight %}
 
-Compare `std::find_if` in the above snippet, with the lambda version,
+Now compare it with the lambda version,
 
 {% highlight cpp%}
-auto it = std::find_if(begin(v), end(v), [](int x ) { return (x*x+4) == (4*x); } ); 
+auto it = std::find_if(begin(v), end(v), [](int i ) { return (i*i+4) == (4*i); } ); 
 {% endhighlight %}
 
-The advantage of expression over lambda is that once you declare `x`, you can reuse it and that too in many different ways. Here are few examples,
-
+The advantage of expression over lambda is that once you declare `x`, you can reuse it and that too in many different ways. Few more examples,
 {% highlight cpp %}
 
 if ( std::any_of(begin(v), end(v), x < 0 ) )
@@ -166,11 +160,11 @@ std::vector<person> filtered;
 std::copy_if(ps.begin(), 
              ps.end(), 
              std::back_inserter(filtered), 
-             age >= 10 && age <= 40 ); //filter all person between age >= 10 && age <= 40
+             age >= 13 && age <= 19 ); //filter teenagers
 
 {% endhighlight %}
 
-which is *functionally* equivalent to this lambda version:
+which is equivalent to this lambda version:
 
 {% highlight cpp %}
 
@@ -178,26 +172,24 @@ std::vector<person> filtered;
 std::copy_if(ps.begin(), 
              ps.end(), 
              std::back_inserter(filtered), 
-             [](person const & p) { return p.age >= 10 && p.age <= 40 } );
+             [](person const & p) { return p.age >= 13 && p.age <= 19 } );
 
 {% endhighlight %}		
 
-The expression version is definitely more readable in addition to being concise.
-
-Even more, `memexp` allows us to pipe as shown below, using `_m` which is a wrapper object of `memexp`:
+Apart from being concise, the expression version is definitely more readable. Even more, memexp allows us to pipe as shown below (using `_m` which is a wrapper object of `memexp`):
 
 {% highlight cpp %}
 
 //first get the name of person object,
 //which then gets passed to the next pipe 
 //which returns the size of the name.
-auto namelen = _m(&person::name) | _m(&std::string::size); //we can also use memexp instead.
+auto namesize = _m(&person::name) | _m(&std::string::size); //we can also use memexp instead.
 
-std::vector<person> lengths;
+std::vector<std::size_t> sizes;
 std::transform(ps.begin(), 
                ps.end(), 
-               std::back_inserter(lengths), 
-               namelen); //note: namelen is composable, so we can pass (namelen * 10) instead!
+               std::back_inserter(sizes), 
+               namesize); //note: namesize is composable, so we can pass (namesize * 10) instead!
 
 {% endhighlight %}		
 
@@ -205,10 +197,10 @@ which is same as (lambda version):
 
 {% highlight cpp %}
 
-std::vector<person> lengths;
+std::vector<std::size_t> sizes;
 std::transform(ps.begin(), 
                ps.end(), 
-               std::back_inserter(lengths), 
+               std::back_inserter(sizes), 
                [](person const & p) { return p.name.size(); } );
 
 {% endhighlight %}		

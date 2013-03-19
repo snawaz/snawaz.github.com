@@ -1,0 +1,30 @@
+<div class="page-header">
+  <h1>{{ page.title }}</h1>
+</div>
+
+<div class="row">
+  <div class="span8">
+    {{ content }}
+    <hr>
+
+    <h3 id="Other_pipes">Other pipes</h3>
+    <ul>
+	    {% include JB/setup %}
+	    {% assign allposts = site.posts %}
+	    {% for post in allposts  %}
+	    {% if post.layout == "pipe" and page.title != post.title %}
+		    <li><a href="{{ post.url }}">{{ post.title }}</a></li>  
+	    {% endif %}
+	    {% endfor %}
+    </ul>
+    <h3 id="Related_pages">Related Pages</h3>
+    <ul> 
+        <li>
+	   <a href="/foam/pipeline.html">Overview of Pipeline</a>
+        </li>
+        <li>
+	   <a href="/foam/pipeline/doc.html">Documentation of Pipeline</a>
+        </li>
+   </ul>
+  </div>
+</div>

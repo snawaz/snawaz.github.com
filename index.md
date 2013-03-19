@@ -8,7 +8,7 @@ title: Introduction
 
 I'll soon put some nice introduction here. 
 
-As of now, I could just list the blogs I've written so far:
+As of now, I could just list the pages I've written so far:
 
 <ul class="posts">
   {% for post in site.posts %}

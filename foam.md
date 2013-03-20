@@ -23,7 +23,8 @@ Foam has been tested with following platforms and compilers:
 
 The source code can be found at:
 
- - [https://github.com/snawaz/foam](https://github.com/snawaz/foam)
+ - [Source at Github](https://github.com/snawaz/foam)
+ - [Download as ZIP](https://github.com/snawaz/foam/archive/master.zip)
 
 ###Libraries
 
@@ -40,7 +41,7 @@ The source code can be found at:
 
 The libraries and utilities are written out of fun while exploring various features of C++11. New ideas keep coming to my mind and I keep updating and refactoring the source code, making the programming experience better and better. It is a work in progress, with the following objectives and goals:
 
- - Cool and useful functionality.
+ - Cool, useful and powerful functionality.
  - Easy to use. Aesthetic coding.
  - Concise yet readable.
  - Performant.

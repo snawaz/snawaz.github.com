@@ -149,7 +149,8 @@ strong {
 }
 
 sup {
-  vertical-align: super;
+  vertical-align: text-top;
+  font-size:80%;
 }
 
 img {

@@ -54,7 +54,7 @@ Most of the signature has return type mentioned as *implementation-defined*.
 <ul>
 {% include JB/setup %}
 {% assign allposts = site.posts %}
-{% for post in allposts  %}
+{% for post in allposts reversed  %}
     {% if post.type == "generatorpipe" %}
 <li><a href="{{ post.url }}">{{ post.title }}</a></li>  
     {% endif %}
@@ -66,7 +66,7 @@ Most of the signature has return type mentioned as *implementation-defined*.
 <ul>
 {% include JB/setup %}
 {% assign allposts = site.posts %}
-{% for post in allposts  %}
+{% for post in allposts reversed %}
     {% if post.type == "processorpipe" %}
 <li><a href="{{ post.url }}">{{ post.title }}</a></li>  
     {% endif %}
